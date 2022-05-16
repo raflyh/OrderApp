@@ -30,7 +30,6 @@ services:
   
   kafdrop:
     image: obsidiandynamics/kafdrop:latest
-    hostname: local.kafkaserver
     ports:
       - "9000:9000"
     links:
@@ -49,11 +48,22 @@ services:
     build:
       context: .
       dockerfile: OrderProcessor/Dockerfile
+    depends_on:
+     - orderservice
+    volumes:
+     - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+     - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
     networks:
       - app-tier
 
   orderservice:
     image: ${DOCKER_REGISTRY-}orderservice
+    ports:
+     - "5052:443"
+     - "5053:80"
+    volumes:
+     - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+     - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
     build:
       context: .
       dockerfile: OrderService/Dockerfile
@@ -62,6 +72,12 @@ services:
 
   productservice:
     image: ${DOCKER_REGISTRY-}productservice
+    ports:
+     - "5054:443"
+     - "5055:80"
+    volumes:
+     - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+     - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
     build:
       context: .
       dockerfile: ProductService/Dockerfile
@@ -70,6 +86,12 @@ services:
 
   userservice:
     image: ${DOCKER_REGISTRY-}userservice
+    ports:
+     - "5050:443"
+     - "5051:80"
+    volumes:
+     - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+     - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:r
     build:
       context: .
       dockerfile: UserService/Dockerfile

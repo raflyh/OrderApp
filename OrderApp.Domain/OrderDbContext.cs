@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Configuration;
 
 namespace OrderApp.Domain
 {
@@ -9,11 +10,17 @@ namespace OrderApp.Domain
     {
         public OrderDbContext()
         {
+            IConfiguration configuration = new ConfigurationBuilder()
+                  .AddJsonFile("appsettings.json", true, true)
+                  .Build();
+
+            _conString = configuration.GetConnectionString("MyDatabase");
         }
 
         public OrderDbContext(DbContextOptions<OrderDbContext> options)
             : base(options)
         {
+
         }
 
         public virtual DbSet<Order> Orders { get; set; } = null!;
@@ -23,14 +30,16 @@ namespace OrderApp.Domain
         public virtual DbSet<Role> Roles { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
         public virtual DbSet<UserRole> UserRoles { get; set; } = null!;
+        public string _conString { get; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS;Database=OrderDb;uid=rafly;pwd=1234;");
+                optionsBuilder.UseSqlServer("Server=localhost,1433;Database=OrderDb;uid=rafly;pwd=R4fly@P4ssw0rd;");
             }
+
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
