@@ -13,83 +13,83 @@ namespace UserService.GraphQL
             RegisterUser input,
             [Service] OrderDbContext context)
         {
-            var user = context.Users.Where(o => o.Username == input.Username).FirstOrDefault();
-            if (user != null)
-            {
-                return await Task.FromResult(new UserData());
-            }
-            var newUser = new User
-            {
-                Fullname = input.Fullname,
-                Email = input.Email,
-                Username = input.Username,
-                Password = BCrypt.Net.BCrypt.HashPassword(input.Password) // encrypt password
-            };
-            var memberRole = context.Roles.Where(m => m.Name == "MEMBER").FirstOrDefault();
-            if (memberRole == null)
-                throw new Exception("Invalid Role");
-            var userRole = new UserRole
-            {
-                RoleId = memberRole.Id,
-                UserId = newUser.Id
-            };
-            newUser.UserRoles.Add(userRole);
-            // EF
-            var ret = context.Users.Add(newUser);
-            await context.SaveChangesAsync();
-
-            return await Task.FromResult(new UserData
-            {
-                Id = newUser.Id,
-                Username = newUser.Username,
-                Email = newUser.Email,
-                Fullname = newUser.Fullname
-            });
-            //using var transaction = context.Database.BeginTransaction();
-            //var resp = new UserData();
-            //try
+            //var user = context.Users.Where(o => o.Username == input.Username).FirstOrDefault();
+            //if (user != null)
             //{
-            //    var user = context.Users.Where(o => o.Username == input.Username).FirstOrDefault();
-            //    if (user != null)
-            //    {
-            //        throw new Exception("Username already exist");
-            //    }
-            //    var newUser = new User
-            //    {
-            //        Email = input.Email,
-            //        Username = input.Username,
-            //        Fullname = input.Fullname,
-            //        Password = BCrypt.Net.BCrypt.HashPassword(input.Password) // encrypt password
-            //    };
-            //    context.Users.Add(newUser);
-            //    // EF
+            //    return await Task.FromResult(new UserData());
+            //}
+            //var newUser = new User
+            //{
+            //    Fullname = input.Fullname,
+            //    Email = input.Email,
+            //    Username = input.Username,
+            //    Password = BCrypt.Net.BCrypt.HashPassword(input.Password) // encrypt password
+            //};
             //var memberRole = context.Roles.Where(m => m.Name == "MEMBER").FirstOrDefault();
             //if (memberRole == null)
             //    throw new Exception("Invalid Role");
-
             //var userRole = new UserRole
             //{
             //    RoleId = memberRole.Id,
             //    UserId = newUser.Id
             //};
             //newUser.UserRoles.Add(userRole);
+            //// EF
+            //var ret = context.Users.Add(newUser);
+            //await context.SaveChangesAsync();
 
-            //    context.SaveChanges();
-            //    await transaction.CommitAsync();
-
-            //    return await Task.FromResult(new UserData
-            //    {
-            //        Id = newUser.Id,
-            //        Username = newUser.Username,
-            //        Email = newUser.Email,
-            //        Fullname = newUser.Fullname
-            //    });
-            //}
-            //catch (Exception ex)
+            //return await Task.FromResult(new UserData
             //{
-            //    transaction.Rollback();
-            //}
-            //return await Task.FromResult(resp);
+            //    Id = newUser.Id,
+            //    Username = newUser.Username,
+            //    Email = newUser.Email,
+            //    Fullname = newUser.Fullname
+            //});
+            using var transaction = context.Database.BeginTransaction();
+            var resp = new UserData();
+            try
+            {
+                var user = context.Users.Where(o => o.Username == input.Username).FirstOrDefault();
+                if (user != null)
+                {
+                    throw new Exception("Username already exist");
+                }
+                var newUser = new User
+                {
+                    Email = input.Email,
+                    Username = input.Username,
+                    Fullname = input.Fullname,
+                    Password = BCrypt.Net.BCrypt.HashPassword(input.Password) // encrypt password
+                };
+                context.Users.Add(newUser);
+                // EF
+                var memberRole = context.Roles.Where(m => m.Name == "MEMBER").FirstOrDefault();
+                if (memberRole == null)
+                    throw new Exception("Invalid Role");
+
+                var userRole = new UserRole
+                {
+                    RoleId = memberRole.Id,
+                    UserId = newUser.Id
+                };
+                newUser.UserRoles.Add(userRole);
+
+                context.SaveChanges();
+                await transaction.CommitAsync();
+
+                return await Task.FromResult(new UserData
+                {
+                    Id = newUser.Id,
+                    Username = newUser.Username,
+                    Email = newUser.Email,
+                    Fullname = newUser.Fullname
+                });
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+            }
+            return await Task.FromResult(resp);
         }
         public async Task<UserToken> LoginAsync(
             LoginUser input,

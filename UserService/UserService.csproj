@@ -8,6 +8,9 @@
     <UserSecretsId>fac612b9-032d-4c2e-97e6-662875d9b28d</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
+	<PropertyGroup>
+		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+	</PropertyGroup>
 	
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />

@@ -61,6 +61,8 @@ services:
     ports:
      - "5052:443"
      - "5053:80"
+    extra_hosts:
+     - "host.docker.internal:host-gateway"
     volumes:
      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
@@ -75,6 +77,8 @@ services:
     ports:
      - "5054:443"
      - "5055:80"
+    extra_hosts:
+     - "host.docker.internal:host-gateway"
     volumes:
      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
@@ -89,6 +93,8 @@ services:
     ports:
      - "5050:443"
      - "5051:80"
+    extra_hosts:
+     - "host.docker.internal:host-gateway"
     volumes:
      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:r
